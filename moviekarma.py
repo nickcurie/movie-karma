@@ -14,7 +14,10 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
 
-bot = commands.Bot(command_prefix=';')
+intents = discord.Intents.default()
+intents.members = True
+
+bot = commands.Bot(command_prefix=';', intents=intents)
 
 conn = sqlite3.connect('moviekarma.db')
 c = conn.cursor()
@@ -401,6 +404,11 @@ async def good_girl(ctx):
 @bot.command(name="simp", help="M'lady")
 async def simpulator(ctx):
 	await ctx.send("Please let me suck your toes, m'lady")
+
+@bot.command(name="ohgodohfuck")
+async def ohno(ctx):
+	print(ctx.message.author.id)
+	print(ctx.guild)
 
 #helpers
 def start(ID):
