@@ -35,8 +35,11 @@ async def on_ready():
 	c.execute('CREATE TABLE IF NOT EXISTS users (user_id int, karma int DEFAULT 0)')
 	c.execute('CREATE TABLE IF NOT EXISTS movies (title varchar(255), nickname varchar(255), user_id int, voting_enabled int DEFAULT 1, vote_result varchar(255))')
 	c.execute('CREATE TABLE IF NOT EXISTS votes (movie_id int, user_id int, vote_value int)')
+	c.execute('DROP TABLE polls')
 	c.execute('CREATE TABLE IF NOT EXISTS polls (message_id int, poll_creator int, is_active int, movie_id int)')
 	c.execute('CREATE TABLE IF NOT EXISTS meme (joe_id int)')
+	# for row in c.execute('SELECT * FROM polls'):
+	# 	print(row)
 
 	conn.commit()
 	random.shuffle(reactions)
@@ -63,7 +66,7 @@ async def add_movie(ctx, movie_title):
 
 @bot.command(name='listmovies', help='Lists movies', aliases=['list'])
 async def list_movies(ctx, page_num: int = 1, user: discord.User = None):
-	print(ctx.message.author.id)
+	#print(ctx.message.author.id)
 	server = ctx.message.guild
 	messageblock = '```'
 	offset = 20 * (page_num-1)
@@ -78,11 +81,12 @@ async def list_movies(ctx, page_num: int = 1, user: discord.User = None):
 	else:
 		for row in c.execute('SELECT rowid, title, user_id, vote_result FROM movies ORDER BY rowid LIMIT ?, 20', (offset,)):
 			#print(row)
-			nickname = server.get_member(row[2]).display_name
-			if row[3]:
-				messageblock += "{0}, {1} - {2}, Verdict: {3}\n".format(row[0], row[1], nickname, row[3])
-			else:
-				messageblock += "{0}, {1} - {2}\n".format(row[0], row[1], nickname)
+			if server.get_member(row[2]):
+				nickname = server.get_member(row[2]).display_name
+				if row[3]:
+					messageblock += "{0}, {1} - {2}, Verdict: {3}\n".format(row[0], row[1], nickname, row[3])
+				else:
+					messageblock += "{0}, {1} - {2}\n".format(row[0], row[1], nickname)
 	messageblock += '```'
 	await ctx.send(messageblock)
 
@@ -118,13 +122,14 @@ async def roll_movie(ctx, count: int = None):
 		options.append((row[1], "ID: {0}".format(row[0])))
 	if not count or count == 1:
 		choice = random.choice(options)
-		c.execute('SELECT user_id, rowid FROM movies WHERE title=?', (choice,))
+		print(choice)
+		c.execute('SELECT user_id, rowid FROM movies WHERE title=?', (choice[0],))
 		sponsor_id = c.fetchone()
 		sponsor = server.get_member(sponsor_id[0]).display_name
 		ID = sponsor_id[1]
-		await ctx.send("Your movie is **{0}**! Sponsored by **{1}**! (ID: {2})".format(choice, sponsor, ID))
+		await ctx.send("Your movie is **{0}**! Sponsored by **{1}**! (ID: {2})".format(choice[0], sponsor, ID))
 	elif count > 9:
-			await ctx.send("Poll is too large. Only supports sizes of 9 or less")
+			await ctx.send("Poll is too large. Only supports sizes of 9 or fewer")
 			return
 	else:
 		choices = random.sample(options, k=count)
@@ -322,7 +327,8 @@ async def show_karma(ctx):
 	server = ctx.message.guild
 	messageblock = '```'
 	for row in c.execute('SELECT * FROM users'):
-		messageblock += 'User: {0}, Karma: {1}\n'.format(server.get_member(row[0]).display_name, row[1])
+		if server.get_member(row[0]):
+			messageblock += 'User: {0}, Karma: {1}\n'.format(server.get_member(row[0]).display_name, row[1])
 	messageblock += '```'
 	await ctx.send(messageblock)
 
@@ -333,7 +339,7 @@ async def remove_movie(ctx, movie_id):
 	row = c.fetchone()
 	nick = server.get_member(row[0]).display_name
 	title = row[1]
-	if nick == ctx.message.author.display_name:
+	if nick == ctx.message.author.display_name or ctx.message.author.id == 181623477231550464:
 		c.execute('DELETE FROM movies WHERE rowid=?', (movie_id,))
 		conn.commit()
 		await ctx.send("**{0}** was removed from the list".format(title))
@@ -366,21 +372,35 @@ async def stupid(ctx):
 ░░░░░░░░░█▄▄▄▄▄▄▄█░░░░░░░░░\n \
 ░░░░░░░░░░░░░░░░░░░░░░░░░░░')
 
-@bot.command(name="girlfriend", help="I love Joe", aliases=['gf'])
-async def girlfriend_sim(ctx):
-	# setup
+# this was a mistake
+# @bot.command(name="girlfriend", help="I love Joe", aliases=['gf'])
+# async def girlfriend_sim(ctx):
+# 	# setup (joe)
+# 	# c.execute('INSERT INTO meme (joe_id) VALUES (?)', (ctx.message.author.id,))
+# 	# conn.commit()
+# 	# c.execute('SELECT joe_id FROM meme')
+# 	# row = c.fetchone()
+# 	# joe = row[0]
+# 	# if ctx.message.author.id == joe:
+# 	# 	message = random.choices(messages_good, weights=[.166,.166,.166,.166,.166,.166,.004])
+# 	# 	print(message[0])
+# 	# 	await ctx.send(message[0])
+# 	# else:
+# 	# 	message = random.choice(messages_bad)
+# 	# 	await ctx.send(message)
+
+@bot.command(name="bettergirlfriend", help="Yikes", aliases=['bettergf'])
+async def good_girl(ctx):
+	# setup (luka)
 	# c.execute('INSERT INTO meme (joe_id) VALUES (?)', (ctx.message.author.id,))
 	# conn.commit()
 	c.execute('SELECT joe_id FROM meme')
-	row = c.fetchone()
-	joe = row[0]
-	if ctx.message.author.id == joe:
-		message = random.choices(messages_good, weights=[.166,.166,.166,.166,.166,.166,.004])
-		print(message[0])
-		await ctx.send(message[0])
-	else:
-		message = random.choice(messages_bad)
-		await ctx.send(message)
+	row = c.fetchall()
+	luka = row[1][0]
+
+@bot.command(name="simp", help="M'lady")
+async def simpulator(ctx):
+	await ctx.send("Please let me suck your toes, m'lady")
 
 #helpers
 def start(ID):
