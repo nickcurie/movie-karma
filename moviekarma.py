@@ -23,8 +23,13 @@ conn = sqlite3.connect('moviekarma.db')
 c = conn.cursor()
 
 reactions = ['👍', '🔥', '🍆', '💦', '😤', '👁️','👄','🔫', '🇰🇵']
-messages_good = ["I love you Joe!", "I'll never leave you Joe!", "Do you remember our first date Joe?", "Your soul belongs to me Joe!", "If you leave me Joe, I'll hurt you!", "I hope you're happy Joe", "This made me uncomfortable to write Joe"]
-messages_bad = ["You're not Joe!", "I hate you! Where's Joe?", "Give me Joe!"]
+simp_messages = ["Pokimane didn't read my sub message!", "I would do ANYTHING for Belle Delphine", "Please let me suck your toes, m'lady", "Screw losing weight. You're good now. Don't sweat that lol", "I like u ur a well spoken woman I lv that in a woman x", \
+"You are no less valuable at a size 16 than a size 4.", "you could def get hotter but you're still very beautiful and attractive", "what are ur measurementsshe is as perfect as you can get .. but looks aside seems to be a down to earth streamer .. this is my first impression as i am new to watching her", \
+"I like a natural woman it's their personality that counts u stand ur ground xx", "you are not chubby. your beautiful.", "You got a hot face so you're good", "Not to be sexist but maybe its a female thing", "Your not chubby kid Social media is wrong Also, I love real woman", \
+"low key I like cellulite and stretch marks on the booty tbh, makes it seem real and natural but that's just me", "from the moment i saw you i cant sleep", "your so fxcking cute hollyyyyyyyyyy", "If your friends are half as HOT 🔥 as you this Hot Tub stream needs to happen 😉", \
+"Merry Xmas to you and those gigantic upper balloons that look absolutely delicious", "you make everything look cute", "you look good in those shorts lol", "show foot please", "love your hair tonight beautiful 😍", "be on the lookout for my claim against u, hand injuries", "The hairband and shirt complement each other really well. You look very nice! :D", \
+"lick my ear like that AND SHIT GONNA GET WICKED", "do you have a latex outfit?xxxxx", "You should wear that suit with no bra. Also the pink one.", "can i plz get giften a sub im a massive fan but have no cash atm", "How long is your tongue?", "I'm very love you 😍", "I see you later bye good bye give me kiss", \
+"watching you mid-trip through europe. You and chat look extra cute!! <3", "I will be in your stream every time", "kisses!", "Its been quite a journey love seeing where you are now and looking forward to the future"]
 
 """
 MAKE SURE MY KARMA IS AT 1
@@ -46,6 +51,11 @@ async def on_ready():
 
 	conn.commit()
 	random.shuffle(reactions)
+
+@bot.event
+async def on_reaction_add(reaction, user):
+	print(reaction.message.channel)
+	#if reaction.message.id = 
 
 @bot.command(name='addmovie', help='Adds movie to list', aliases=['add'])
 async def add_movie(ctx, movie_title):
@@ -403,12 +413,14 @@ async def good_girl(ctx):
 
 @bot.command(name="simp", help="M'lady")
 async def simpulator(ctx):
-	await ctx.send("Please let me suck your toes, m'lady")
+	message = random.choice(simp_messages)
+	await ctx.send(message)
 
-@bot.command(name="ohgodohfuck")
-async def ohno(ctx):
-	print(ctx.message.author.id)
-	print(ctx.guild)
+@bot.command(name="party", help="Call upon the movie watching army")
+async def start_watch_party(ctx):
+	user = ctx.message.author.display_name
+	watch_party = discord.utils.get(ctx.guild.roles, id=791894679503241257)
+	react_msg = await ctx.send("{0} {1} wants to start a watch party! Who's in?".format(watch_party.mention, user))
 
 #helpers
 def start(ID):
