@@ -23,19 +23,10 @@ conn = sqlite3.connect('moviekarma.db')
 c = conn.cursor()
 
 reactions = ['👍', '🔥', '🍆', '💦', '😤', '👁️','👄','🔫', '🇰🇵']
-simp_messages = ["Pokimane didn't read my sub message!", "I would do ANYTHING for Belle Delphine", "Please let me suck your toes, m'lady", "Screw losing weight. You're good now. Don't sweat that lol", "I like u ur a well spoken woman I lv that in a woman x", \
-"You are no less valuable at a size 16 than a size 4.", "you could def get hotter but you're still very beautiful and attractive", "what are ur measurementsshe is as perfect as you can get .. but looks aside seems to be a down to earth streamer .. this is my first impression as i am new to watching her", \
-"I like a natural woman it's their personality that counts u stand ur ground xx", "you are not chubby. your beautiful.", "You got a hot face so you're good", "Not to be sexist but maybe its a female thing", "Your not chubby kid Social media is wrong Also, I love real woman", \
-"low key I like cellulite and stretch marks on the booty tbh, makes it seem real and natural but that's just me", "from the moment i saw you i cant sleep", "your so fxcking cute hollyyyyyyyyyy", "If your friends are half as HOT 🔥 as you this Hot Tub stream needs to happen 😉", \
-"Merry Xmas to you and those gigantic upper balloons that look absolutely delicious", "you make everything look cute", "you look good in those shorts lol", "show foot please", "love your hair tonight beautiful 😍", "be on the lookout for my claim against u, hand injuries", "The hairband and shirt complement each other really well. You look very nice! :D", \
-"lick my ear like that AND SHIT GONNA GET WICKED", "do you have a latex outfit?xxxxx", "You should wear that suit with no bra. Also the pink one.", "can i plz get giften a sub im a massive fan but have no cash atm", "How long is your tongue?", "I'm very love you 😍", "I see you later bye good bye give me kiss", \
-"watching you mid-trip through europe. You and chat look extra cute!! <3", "I will be in your stream every time", "kisses!", "Its been quite a journey love seeing where you are now and looking forward to the future"]
 
-"""
-MAKE SURE MY KARMA IS AT 1
-TALLY FOR RATING SEEMS VERY IFFY
-EMBED
-"""
+
+#TODO MAKE SURE MY KARMA IS AT 1
+#TODO TALLY FOR RATING SEEMS VERY IFFY
 
 @bot.event
 async def on_ready():
@@ -57,6 +48,7 @@ async def on_reaction_add(reaction, user):
 	print(reaction.message.channel)
 	#if reaction.message.id = 
 
+
 @bot.command(name='addmovie', help='Adds movie to list', aliases=['add'])
 async def add_movie(ctx, movie_title):
 	c.execute('SELECT title from movies')
@@ -76,6 +68,7 @@ async def add_movie(ctx, movie_title):
 		await ctx.send("**{0}** added to list (ID: {1})".format(movie_title, ID))
 	else:
 		await ctx.send("**{0}** is already in the list".format(movie_title))
+
 
 @bot.command(name='listmovies', help='Lists movies', aliases=['list'])
 async def list_movies(ctx, page_num: int = 1, user: discord.User = None):
@@ -103,6 +96,7 @@ async def list_movies(ctx, page_num: int = 1, user: discord.User = None):
 	messageblock += '```'
 	await ctx.send(messageblock)
 
+
 @bot.command(name='search', help='Checks if movie is in the list already')
 async def search(ctx, movie_title):
 	c.execute('SELECT title, user_id from movies WHERE title = ?', (movie_title,))
@@ -113,6 +107,7 @@ async def search(ctx, movie_title):
 		await ctx.send("**{0}** was already added by **{1}**".format(row[0], nickname))
 	else:
 		await ctx.send("**{0}** is probably not in the list yet. If your capitalization differs from the title in the list this command won't work properly".format(movie_title))
+
 
 @bot.command(name='legacy', help='Lists all movies previously voted on')
 async def list_legacy(ctx, page_num: int = 1):
@@ -125,6 +120,7 @@ async def list_legacy(ctx, page_num: int = 1):
 		messageblock += "{0}, {1} - {2}, Verdict: {3}\n".format(row[0], row[1], nickname, row[3])
 	messageblock += '```'
 	await ctx.send(messageblock)
+
 
 # need to add weights based on karma
 @bot.command(name='lottery', help='Chooses a random movie', aliases=['roll'])
@@ -155,6 +151,7 @@ async def roll_movie(ctx, count: int = None):
 		conn.commit()
 		for reaction in reactions[:count]:
 			await react_message.add_reaction(reaction)
+
 
 @bot.command(name='tally', help='Tallies votes from a multi-roll or rating')
 async def tally_votes(ctx):
@@ -230,14 +227,6 @@ async def tally_votes(ctx):
 		conn.commit()
 		await ctx.send("Karma has been awarded to **{0}**".format(ctx.message.author.display_name))
 
-#DONT UNCOMMENT
-# @bot.command(name="f")
-# async def tally2(ctx):
-# 	c.execute('UPDATE movies SET voting_enabled = 0 WHERE rowid = ?', (56,))
-# 	c.execute('UPDATE users SET karma = 1 WHERE user_id = ?', (691050778940538880,))
-# 	c.execute('DROP TABLE polls')
-# 	await ctx.send("Result: **GOOD MOVIE** (+5)")
-# 	await ctx.send("Karma has been awarded to **{0}**".format(ctx.message.author.display_name))
 
 @bot.command(name="startvote", help="Start voting for specified movie", aliases=['start'])
 async def start_voting(ctx, movie_id):
@@ -263,36 +252,8 @@ async def start_voting(ctx, movie_id):
 	c.execute('INSERT INTO polls VALUES (?, ?, ?, ?)', (react_message.id, uid, 1, movie_id))
 	conn.commit()
 
-# @bot.command(name="vote", help="Vote on a movie")
-# async def vote(ctx, movie_id, verdict: str = None):
-# 	c.execute('SELECT * FROM movies WHERE rowid = ?', (movie_id,))
-# 	if c.fetchone():
-# 		user_id = ctx.message.author.id
-# 		c.execute('SELECT * FROM votes WHERE movie_id = ? and user_id = ?', (movie_id, user_id))
-# 		has_voted = c.fetchone()
-# 		if verdict:
-# 			if not has_voted:
-# 				vote_val = 0
-# 				verdict = verdict.lower()
-# 				if verdict == 'good':
-# 					vote_val = 1
-# 					c.execute('INSERT INTO votes (movie_id, user_id, vote_value) VALUES (?, ?, ?)', (movie_id, user_id, vote_val))
-# 					await ctx.send("Vote accepted")
-# 				elif verdict == 'bad':
-# 					vote_val = -1
-# 					c.execute('INSERT INTO votes (movie_id, user_id, vote_value) VALUES (?, ?, ?)', (movie_id, user_id, vote_val))
-# 					await ctx.send("Vote accepted")
-# 				else:
-# 					await ctx.send("Your vote needs to be 'good' or 'bad'")
-# 				conn.commit()
-# 			else:
-# 				await ctx.send("You have already voted for this movie")
-# 		else:
-# 			await ctx.send("Please enter your vote (good or bad)")
-# 	else:
-# 		await ctx.send("Movie with ID {0} does not exist".format(movie_id))
 
-# outdated. removed nickname from movies in case ressurection is required 
+# !outdated. removed nickname from movies in case code needs to be used again 
 # @bot.command(name="endvote", help="Stop voting for specified movie", aliases=['end'])
 # async def end_voting(ctx, movie_id: int = None):
 # 	c.execute('SELECT nickname FROM movies where rowid=?', (movie_id,))
@@ -335,6 +296,7 @@ async def start_voting(ctx, movie_id):
 # 	else:
 # 		await ctx.send("Only the person who added this movie can end voting")
 
+
 @bot.command(name="showkarma", help="Lists all users and karma", aliases=['karma'])
 async def show_karma(ctx):
 	server = ctx.message.guild
@@ -344,6 +306,7 @@ async def show_karma(ctx):
 			messageblock += 'User: {0}, Karma: {1}\n'.format(server.get_member(row[0]).display_name, row[1])
 	messageblock += '```'
 	await ctx.send(messageblock)
+
 
 @bot.command(name="remove", help="Removes movie from list given ID", aliases=['delete'])
 async def remove_movie(ctx, movie_id):
@@ -359,7 +322,8 @@ async def remove_movie(ctx, movie_id):
 	else:
 		await ctx.send("Only **{0}** can delete **{1}**".format(nick, title))
 
-@bot.command(name="wall-e", help="fuck you")
+
+@bot.command(name="wall-e", help="are you kidding me")
 async def stupid(ctx):
 	await ctx.send("Wow you rolled **Wall-e**. Crazy how that works.")
 	await ctx.send('░░░░░░░░░░░░░░░░░░░░░░░░░░░\n \
@@ -385,36 +349,6 @@ async def stupid(ctx):
 ░░░░░░░░░█▄▄▄▄▄▄▄█░░░░░░░░░\n \
 ░░░░░░░░░░░░░░░░░░░░░░░░░░░')
 
-# this was a mistake
-# @bot.command(name="girlfriend", help="I love Joe", aliases=['gf'])
-# async def girlfriend_sim(ctx):
-# 	# setup (joe)
-# 	# c.execute('INSERT INTO meme (joe_id) VALUES (?)', (ctx.message.author.id,))
-# 	# conn.commit()
-# 	# c.execute('SELECT joe_id FROM meme')
-# 	# row = c.fetchone()
-# 	# joe = row[0]
-# 	# if ctx.message.author.id == joe:
-# 	# 	message = random.choices(messages_good, weights=[.166,.166,.166,.166,.166,.166,.004])
-# 	# 	print(message[0])
-# 	# 	await ctx.send(message[0])
-# 	# else:
-# 	# 	message = random.choice(messages_bad)
-# 	# 	await ctx.send(message)
-
-@bot.command(name="bettergirlfriend", help="Yikes", aliases=['bettergf'])
-async def good_girl(ctx):
-	# setup (luka)
-	# c.execute('INSERT INTO meme (joe_id) VALUES (?)', (ctx.message.author.id,))
-	# conn.commit()
-	c.execute('SELECT joe_id FROM meme')
-	row = c.fetchall()
-	luka = row[1][0]
-
-@bot.command(name="simp", help="M'lady")
-async def simpulator(ctx):
-	message = random.choice(simp_messages)
-	await ctx.send(message)
 
 @bot.command(name="party", help="Call upon the movie watching army")
 async def start_watch_party(ctx):
